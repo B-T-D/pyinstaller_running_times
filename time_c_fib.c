@@ -4,6 +4,9 @@
 
 # include "fib.c"
 
+# define TIMESTAMP_SIZE 17
+# define FILENAME_SIZE 34
+
 int main(int argc, char *argv[])
 {
 	int n = atoi(argv[1]);
@@ -31,7 +34,19 @@ int main(int argc, char *argv[])
 		/* CLOCKS_PER_SEC constant is already #define d in <time.h> */
 	printf("total seconds = clocks / CLOCKS_PER_SEC = %ld\n", total_seconds);
 	
-	FILE *fp = fopen("results pure C.txt", "w");
+	char filename[FILENAME_SIZE];
+	time_t stamp; /* timestamp for use in results filename */
+	struct tm *pointer_to_stamp;
+	stamp = time(NULL);
+	//time(&stamp);
+	//printf("%s\n", ctime(&stamp));
+	size_t smax = 15; /* max of 15 characters for the filename timestamp */
+	char stampstring[TIMESTAMP_SIZE];
+	strftime(filename, sizeof(stampstring), "%Y-%m-%d %H%M", localtime(&stamp));
+	printf("%s\n", filename);
+	
+	
+	FILE *fp = fopen(filename, "w");
 	for (i=0; i < n; i++){
 		printf("%f\n", results[i]);
 		//fgets(i);

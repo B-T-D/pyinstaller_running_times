@@ -1,14 +1,14 @@
 import time
 import matplotlib.pyplot as pyplot
+import json
 
 from fib import fib
 
 
 times = {} # {n: time}
 
-n = 35
+n = 30
 for i in range(n):
-    print(f"computing Fibonacci number {i} of {n}", end="\r", flush=True)
     start = time.time()
     fib(i)
     end = time.time()
@@ -20,6 +20,10 @@ print("\n-------RESULTS-------")
 for key, value in times.items():
     print(f"{key}: {value}")
 
+filename = time.strftime("results pure python %Y-%m-%d %H%M") + '.json'
+with open(filename, 'w') as fobj:
+    json.dump(times, fobj)
+fobj.close()
 
 # pyplot
 pyplot.plot(list(times.keys()), list(times.values()),

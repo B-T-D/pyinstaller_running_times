@@ -13,7 +13,9 @@ def time_py_fib(n):
     [0, n-1] and return dictionary of the results, in format
     {(int) n: (float)seconds}
     """
-    results = {}
+    results = {} # This should have trivially lower constant factor than the C implementation,
+                #   because C writes its results to an array with O(n) insertion, while
+                # this is writing to a hash map with O(1) insertion. 
     for i in range(n):
         start = time.time()
         fib(i)
@@ -22,6 +24,19 @@ def time_py_fib(n):
 
     return results
 
+def save_results_to_txt(results: dict):
+    """
+    Save the results to a txt file formatted the same way as the C implementation's output,
+    such that can be parsed into a dict on another system by the same Python function as
+    converts C's txt output.
+    """
+    # todo class attribute n would be useful here--assert len matches n
+    filename = "results pure python.txt"
+    fobj = open(filename, mode='w')
+    for key, value in results.items():
+        fobj.write(f"{key}: {value}\n")
+    fobj.close()
+        
 
 def dump_results_to_json(results):
     # old spaghetti code, prob obviated
@@ -49,7 +64,8 @@ def main():
     print(f"\nfull sys.argv list: {sys.argv}")
     args = parser.parse_args()
     n = int(sys.argv[1])
-    time_py_fib(n)
+    results = time_py_fib(n)
+    save_results_to_txt(results)
 
 if __name__ == '__main__':
     main()

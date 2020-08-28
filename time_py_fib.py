@@ -13,6 +13,15 @@ def in_pyinstaller():
 
 def time_py_fib(n):
     """
+    Return time in seconds needed to compute fib(n) with pure Python implementation.
+    """
+    start = time.time()
+    fib(n)
+    end = time.time()
+    return end - start
+
+def time_py_fib_cumulative(n):
+    """
     Time the execution of the pure Python Fibonacci function for input values
     [0, n-1] and return dictionary of the results, in format
     {(int) n: (float)seconds}
@@ -60,8 +69,7 @@ the n value provided at command line.")
     
     args = parser.parse_args()
     n = int(sys.argv[1])
-    results = time_py_fib(n)
-    save_results_to_txt(results)
+    print(time_py_fib(n)) # For subprocess-stdout-capture approach
 
 if __name__ == '__main__':
     main()

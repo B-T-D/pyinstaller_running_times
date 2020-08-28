@@ -36,14 +36,21 @@ int main(int argc, char *argv[])
 	time_trial(n, results);	
 	
 	/* Write results to file */
-	char filename[FILENAME_SIZE];
-	strcat(filename, "results pure C.txt"); /* file with stable name that Python script 
+	char filename[FILENAME_SIZE] = "results pure C.txt";
+	/* file with stable name that Python script 
 		knows */
-	FILE *fp = fopen(filename, "w");
+	printf("filename is %s\n", filename);
+	
+	printf("ran up to last line before the file open line");
+	
+	FILE *fp = fopen(filename, "w"); /* Behaving strangely on windows */
+	
+	printf("ran through FILE *fp open line");
 	int i;
 	for (i=0; i < n; i++){
 		//printf("%f\n", results[i]);
 		fprintf(fp, "%d: %f\n", i, results[i]);
+		printf("Writing to file result %d of %d", i, n);
 	};
 	fclose(fp);
 	

@@ -81,7 +81,8 @@ the n value provided at command line.")
             print("Running in normal Python process.")
                         
                         
-    print(time_py_fib(n)) # For subprocess-stdout-capture approach
+    print(time_py_fib(n), end='') # For subprocess-stdout-capture approach
+                                    # Omit the default trailing '\n'
 
 if __name__ == '__main__':
     main()

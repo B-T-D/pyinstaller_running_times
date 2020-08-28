@@ -1,52 +1,74 @@
-
-
 import subprocess
 import time
 import argparse
 import matplotlib.pyplot as pyplot
+import platform
+import sys
 
-def time_c_fib(n):
+def get_os(): # Wrapper so implementation can be swapped out
+    """Wrapper utility to return the machine's operating system."""
+    # Using platform.system() for readability (returns "Windows" instead of
+    #   os.name which evaluates to "nt". Not sure what other considerations.
+    if platform.system() == "Windows":
+        return "Windows"
+    elif platform.system() == "Linux":
+        return "Linux"
+    else:
+        raise OSError("Couldn't identify operating system.")
+
+def time_c(n):
     """Run C implementation fib(n) in subprocess and return its output. The
     C program's output is the running time."""
     # TODO take the name of the compiled C executable as an optional arg?
 
-    command = "time_c_fib" # Base command that would be entered at command line
-                            # to run the C executable
-    start = time.time()
+    system = get_os() # Commandline syntax will depend on the OS
+    if system == "Windows": 
+        command = "time_c_fib"
+    elif system == "Linux":
+        command = "./time_c_fib"
     completed_subproc = subprocess.run(f"{command} {n}", capture_output=True)
-    result = float(completed_subproc.stdout)
-    end = time.time()
-    py_subprocess_time = end - start
-    py_overhead = py_subprocess_time - result
-    # Difference drops to trivial around n >= 45, observed on Windows 2020-08-28
-    return (result, py_subprocess_time, py_overhead)
-    
-    
-    # DB for curiosity, timing in python and compare with native C timing
-    
-def plot_overhead(data: dict):
-    """Use pyplot to plot the results linearly with n on x axis, time on y axis."""
-    xvals = list(data.keys())
-    c_times = [data[n][0] for n in xvals]
-    totals = [data[n][1] for n in xvals]
-    overheads = [data[n][2] for n in xvals]
-    pyplot.plot(xvals,
-                c_times,
-                label="C execution")
-    pyplot.plot(xvals,
-                totals,
-                label="Total subprocess")
-    pyplot.plot(xvals,
-                overheads,
-                label="Python subprocess overhead")
-    pyplot.title("Python overhead for computing fib(n) with compiled C subprocess")
-    pyplot.xlabel("n")
-    pyplot.ylabel("Running time")
-    pyplot.legend()
-    #pyplot.savefig("Python overhead for C subprocess", format="png")
-    pyplot.show()
-    
+    return float(completed_subproc.stdout)
+        
+def time_py(n):
+    """Run pure Python implementation fib(n) in subprocess and return its output.
+    The Python fib(n) module measures its running time internally and outputs it."""
 
+    # TODO class attribute OS
+
+    system = get_os() # Commandline syntax will depend on the OS
+    if system == "Windows": 
+        command = "python -m time_py_fib"
+    elif system == "Linux":
+        command = "python3 -m time_py_fib"
+    completed_subproc = subprocess.run(f"{command} {n}", capture_output=True)
+    return float(completed_subproc.stdout)
+
+def time_pyi_onedir(n):
+    """Run Pyinstaller one-directory build fib(n) implementation in subprocess and
+    return its output (which is the running time)."""
+
+    # TODO DRY
+    
+    system = get_os() # Commandline syntax will depend on the OS
+    if system == "Windows": 
+        command = r"dist\time_pyi_fib_win_od\time_pyi_fib_win_od"
+    elif system == "Linux":
+        command = "dist/time_pyi_fib_win_od/./time_pyi_fib_win_od" # TODO confirm this is right
+    completed_subproc = subprocess.run(f"{command} {n}", capture_output=True)
+    return float(completed_subproc.stdout)
+
+def time_pyi_onefile(n):
+    """Run Pyinstaller one-file build fib(n) implementation in subprocess and return its output
+    (which is the running time)."""
+    system = get_os() # Commandline syntax will depend on the OS
+    if system == "Windows": 
+        command = r"dist\time_pyi_fib_win_onefile"
+    elif system == "Linux":
+        command = "dist/./time_pyi_fib_win_onefile" # TODO confirm this is right
+    completed_subproc = subprocess.run(f"{command} {n}", capture_output=True)
+    return float(completed_subproc.stdout)
+    
+        
 def main():
 
     parser = argparse.ArgumentParser()
@@ -59,49 +81,22 @@ starting from fib(0) = 0")
     if not n:
         print("No n argument")
 
-    py_overhead_data = {}
+    results = {}
+    trial_functions = {
+        "C": time_c,
+        "Python": time_py,
+        "Pyinstaller onedirectory": time_pyi_onedir,
+        "Pyinstaller onefile": time_pyi_onefile
+        }
 
-    trials = [i for i in range(10, 41, 5)]
-    for n in trials:
-        output = time_c_fib(n)
-        py_overhead_data[n] = output
+    for label, function in trial_functions.items():
+        try:
+            results[label] = function(n)
+        except FileNotFoundError:
+            print(f"Skipped {label} due to FileNotFoundError")
 
-    ## Output file init ##
-
-    report_fobj = open("Python overhead for C subprocess.txt", mode='w')
+    for key in results.keys():
+        print(f"{key}: {results[key]}")
     
-
-    ## Output formatting ##
-    label_n = 'n'
-    colwidth_n = 4
-    label_c = 'Native C time'
-    colwidth_c = 2 + len(label_c)
-    label_p = 'Python subprocess time'
-    colwidth_p = 2 + len(label_p)
-    label_s = 'Subprocess overhead'
-    colwidth_s = 2 + len(label_s)
-    
-    header =\
-           f"{label_n:^{colwidth_n}}|{label_c:^{colwidth_c}}|{label_p:^{colwidth_p}}|{label_s:^{colwidth_s}}"
-    print(header)
-    report_fobj.write(header + "\n")
-    print('-' * len(header)) # horizontal row-separator under header row
-    report_fobj.write('-' * len(header) + "\n")
-    for n, results in py_overhead_data.items():
-        print(f"\
-{n:^{colwidth_n}}|\
-{round(results[0], 6):^{colwidth_c}}|\
-{round(results[1], 6):^{colwidth_p}}|\
-{round(results[2], 6):^{colwidth_s}}")
-        report_fobj.write(f"\
-{n:^{colwidth_n}}|\
-{round(results[0], 6):^{colwidth_c}}|\
-{round(results[1], 6):^{colwidth_p}}|\
-{round(results[2], 6):^{colwidth_s}}\n")
-
-    report_fobj.close()
-
-    plot_overhead(py_overhead_data)
-
 if __name__ == '__main__':
     main()

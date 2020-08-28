@@ -64,11 +64,23 @@ def main():
     parser = argparse.ArgumentParser(description=\
                                      "Call recursive Fibonacci time-trial with\
 the n value provided at command line.")
-    parser.add_argument('nth Fibonacci number', metavar='n', type=int, nargs='+',
+    parser.add_argument('n', type=int, nargs='?', # "?" for only take one arg
                         help='Value of n for Fibonacci time trial')
-    
+    parser.add_argument('-pi', '--inpyinstaller',
+                        action='store_true',
+                        required=False,
+                        help='Flag to display whether running in Pyinstaller bundle')
+        
     args = parser.parse_args()
-    n = int(sys.argv[1])
+    n = args.n
+    pyi = args.inpyinstaller
+    if pyi:
+        if in_pyinstaller():
+            print("Running in Pyinstaller bundle")
+        else:
+            print("Running in normal Python process.")
+                        
+                        
     print(time_py_fib(n)) # For subprocess-stdout-capture approach
 
 if __name__ == '__main__':

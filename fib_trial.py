@@ -5,16 +5,49 @@ import matplotlib.pyplot as pyplot
 import platform
 import sys
 
-def get_os(): # Wrapper so implementation can be swapped out
-    """Wrapper utility to return the machine's operating system."""
-    # Using platform.system() for readability (returns "Windows" instead of
-    #   os.name which evaluates to "nt". Not sure what other considerations.
-    if platform.system() == "Windows":
-        return "Windows"
-    elif platform.system() == "Linux":
-        return "Linux"
-    else:
-        raise OSError("Couldn't identify operating system.")
+class FibTrial:
+    """Object that runs a running-times experiment for various implementations of O(2^n) time
+    recursive Fibonacci number function."""
+
+    def __init__(self, n):
+        self.n = n
+        self.os = self.get_os()
+
+    def get_os(self): # Wrapper so implementation can be swapped out
+        """Wrapper utility to return the machine's operating system."""
+        # Using platform.system() for readability (returns "Windows" instead of
+        #   os.name which evaluates to "nt". Not sure what other considerations.
+        if platform.system() == "Windows":
+            return "Windows"
+        elif platform.system() == "Linux":
+            return "Linux"
+        else:
+            raise OSError("Couldn't identify operating system.")
+
+    def os_command(self, program: str):
+        """Return the OS-appropriate command to run executable."""
+        # Check if it's a .py file or a compiled
+        if program[-4:] == ".exe":
+            program = program.strip(".exe")
+            if self.os == "Windows":
+                return f"{program} {self.n}"
+            else:
+                raise NotImplementedError
+        elif program[-3:] == ".py": # Just let it loudly fail if e.g. pyw
+            program = program.strip(".py")
+            if self.os == "Windows":
+                return f"python -m {program} {self.n}"
+            else:
+                raise NotImplementedError
+        else:
+            raise ValueError("Unrecognized fib-runner program file extension")
+
+    def time_c(self): # doesn't need n as an arg because can access the attribute
+        program = "time_c_fib.exe"
+        if self.os == "Windows":
+            command = "time_c_fib"
+        elif self.os == "Linux":
+            command = "./time_c_fib"
 
 def time_c(n):
     """Run C implementation fib(n) in subprocess and return its output. The

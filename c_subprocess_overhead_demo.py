@@ -21,8 +21,8 @@ def time_c_fib(n):
                             # to run the C executable
     start = time.time()
     completed_subproc = subprocess.run(f"{command} {n}", capture_output=True)
-    result = float(completed_subproc.stdout)
     end = time.time()
+    result = float(completed_subproc.stdout)
     py_subprocess_time = end - start
     py_overhead = py_subprocess_time - result
     # Difference drops to trivial around n >= 45, observed on Windows 2020-08-28

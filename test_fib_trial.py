@@ -43,31 +43,28 @@ class FibTrialBasicCoverage(unittest.TestCase):
         self.assertFalse(self.trial._is_onefile_name(self.onedir_name_win))
 
     def test_os_command_c_program_windows(self):
-        n = self.trial.n # unpack local n just in case
         self.trial.os = "Windows"
-        expected = f"{self.c_name_win.strip('.exe')} {n}"
+        expected = f"{self.c_name_win.strip('.exe')} {self.trial.n}"
         actual = self.trial.os_command(self.c_name_win)
         self.assertEqual(expected, actual)
 
     def test_os_command_py_program_windows(self):
         n = self.trial.n
         self.trial.os = "Windows"
-        pyprogram = "time_py_fib.py"
         expected = f"python -m {self.py_name.strip('.py')} {self.trial.n}"
         self.assertEqual(expected, self.trial.os_command(self.py_name))
 
     def test_os_command_pyinstaller_onedir_windows(self):
         n = self.trial.n
         self.trial.os = "Windows"
-        pyi_onedir_program = "time_pyi_fib_win_onedir.exe"
-        expected = rf"dist\time_pyi_fib_win_onedir\time_pyi_fib_win_onedir {n}"
+        expected =\
+                 rf"dist\{self.onedir_name_win[:-4]}\{self.onedir_name_win[:-4]} {n}"
         self.assertEqual(expected,
                          self.trial.os_command(self.onedir_name_win))
 
     def test_os_command_pyinstaller_onefile_windows(self):
         n = self.trial.n
         self.trial.os = "Windows"
-        pyi_onefile_program = "time_pyi_fib_win_onefile.exe"
         expected =\
                  rf"dist\{self.onefile_name_win[:-4]} {self.trial.n}"
         self.assertEqual(expected,

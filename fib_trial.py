@@ -1,37 +1,24 @@
 import subprocess
-import time
 import argparse
 import matplotlib.pyplot as pyplot
 import platform
-import sys
 
-def get_os(): # Outside class for expediency, so __init__ can call it the one and only time
+def get_os():
     """Wrapper utility to return the machine's operating system."""
-    # Using platform.system() for readability (returns "Windows" instead of
-    #   os.name which evaluates to "nt". Not sure what other considerations.
-    if platform.system() == "Windows":
+    # Alternative: os.name, evaluates to "nt". Chose platform.system() for readability ("Windows")
+    if platform.system() == "Windows": 
         return "Windows"
     elif platform.system() == "Linux":
         return "Linux"
     else:
         raise OSError("Couldn't identify operating system.")
 
-class FibTrial:
-
-    # TODO: Need to take a mean of the execution times. All three python ones jump around at
-    #   n=40 enough that there's not a consistent rank ordering.
-
-        # Try 10 trials at n=35. Python should run in under 3 seconds for n=35, on desktop's
-        # hardware.
-
-    # TODO: That needs multicore processing--that will cut the total running time of each trial
-    #   to almost 1/3rd (if they all ran at once, and C is rounded to zero).
-
-    # TODO: return the actual fib values as well, as sanity check. Use a C program with a fast
-    #   fib algorithm to validate the math.
-    
+class FibTrial: 
     """Object that runs a running-times experiment for various implementations of O(2^n) time
     recursive Fibonacci number function."""
+
+     # TODO: return the actual fib values as well, as sanity check. Use a C program with a fast
+        #   fib algorithm to validate the math.
 
     def __init__(self, n, trials):
         self.n = n
@@ -44,7 +31,6 @@ class FibTrial:
 
     def run(self):
         """Run the trial and output to stdout and files as appropriate."""
-        # TODO validate useability of the trial executables
         
         results = {}
         trial_functions = {
@@ -58,7 +44,7 @@ class FibTrial:
             results[label] = [] # Values will be lists with one element per trial
 
         for trial in range(self.trials):
-            print(f"running trial {trial} of {self.trials}", end="\r", flush=True)
+            print(f"running trial {trial} of {self.trials}", end="\r", flush=True) # progress counter
             for label, function in trial_functions.items():
                 try:
                     results[label].append(function()) # The functions get n from the class attribute
@@ -70,15 +56,11 @@ class FibTrial:
         print(f"Mean running times:")
         for key in results.keys():
             mean = sum(results[key]) / len(results[key])
-            print(f"{key}: {mean}")
-
-        print(f"Full results:")
-        for key in results.keys():
-            print(f"{key}: {results[key]}")
+            print(f"\t{key}: {mean}")
 
         self.plot_bar(results)
 
-    def plot_bar(self, results: dict):
+    def plot_bar(self, results: dict) -> None:
         """Use pyplot to plot the mean running time of each implementation of fib(n)."""
 
         means = {}
@@ -94,7 +76,7 @@ class FibTrial:
         pyplot.tight_layout(pad=0.4)
         pyplot.show()
 
-    def _is_pyi_name(self, program: str) -> bool: # For ease of maintenance if naming convention changes
+    def _is_pyi_name(self, program: str) -> bool: # maintainability in case file naming changes
         """Return True if string is indicative of the naming convention for one of the project's
         pyinstaller executables, else False."""
         
@@ -112,13 +94,13 @@ class FibTrial:
 
         return "onefile" in program
 
-    def os_command(self, program: str):
+    def os_command(self, program: str) -> str:
         """Return the OS-appropriate command to run executable."""
-        # Check if it's a .py file or a compiled
+        # Check if .py file or a compiled
         if program[-4:] == ".exe":
             program = program[:-4] # using "strip('.exe' will think 'e' in 'onefile' is the
                                     # beginning of a new '.exe' instance and strip it.
-            # check if it's a pyinstaller exe that would be in a different directory       
+            # Pyinstaller onedir vs. onefile will be in different directories by default     
             if self._is_pyi_name(program): # Then check onedir vs. onefile naming convention
                 if  self._is_onedir_name(program):
                     if self.os == "Windows":
@@ -135,7 +117,7 @@ class FibTrial:
                     return rf"{program} {self.n}"
                 else:
                     raise NotImplementedError
-        elif program[-3:] == ".py": # Just let it loudly fail if e.g. pyw
+        elif program[-3:] == ".py": # Fail loudly on a .pyw
             program = program[:-3]
             if self.os == "Windows":
                 return f"python -m {program} {self.n}"
@@ -144,10 +126,9 @@ class FibTrial:
         else:
             raise ValueError("Unrecognized fib-runner program file extension")
 
-        print(f"******  program = {program}  ******")
-        raise Exception ("shouldn't have gotten here without returning") # TODO DB
+        raise ValueError(f"Couldn't generate OS command for program name {program}")
 
-    def time_c(self): # doesn't need n as an arg because can access the attribute
+    def time_c(self):
         command = self.os_command(self.c_name_win)
         completed_subproc = subprocess.run(f"{command}", capture_output=True)
         return float(completed_subproc.stdout)

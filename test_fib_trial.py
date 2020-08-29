@@ -7,7 +7,7 @@ class FibTrialBasicCoverage(unittest.TestCase):
 
     def setUp(self):
         n = 10
-        self.trial = ft.FibTrial(n)
+        self.trial = ft.FibTrial(n, trials=3)
         self.c_name_win = "time_c_fib_win.exe"
         self.py_name = "time_py_fib.py"
         self.onedir_name_win = "time_pyi_fib_win_onedir.exe"

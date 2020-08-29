@@ -18,10 +18,11 @@ def main():
         raise NotImplementedError
     
     for command in commands:
+        print("\n -- NEW TEST PROCESS: --")
         print(f"subprocess: $ {command} ")
         completed_subproc = subprocess.run(f"{command}", capture_output=False)
         results[command] = completed_subproc.stdout
-        print("\n -- NEXT: --")
+        
 
     print(results)
 

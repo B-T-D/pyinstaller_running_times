@@ -23,8 +23,5 @@ def main():
         completed_subproc = subprocess.run(f"{command}", capture_output=False)
         results[command] = completed_subproc.stdout
         
-
-    print(results)
-
 if __name__ == '__main__':
     main()

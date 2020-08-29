@@ -153,7 +153,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("n", type=int,
                         nargs="?",
-                        help="Which Fibonacci number to return,\
+                        help="Which Fibonacci number to return, \
 starting from fib(0) = 0")
     parser.add_argument("trials",
                         type=int,

@@ -50,7 +50,7 @@ class FibTrial:
         trial_functions = {
             "C": self.time_c,
             "Python": self.time_py,
-            "Pyinstaller onedirectory": self.time_pyi_onedir,
+            "Pyinstaller onedir": self.time_pyi_onedir,
             "Pyinstaller onefile": self.time_pyi_onefile
             }
         results = {}
@@ -91,9 +91,8 @@ class FibTrial:
         pyplot.title(f"Running times for {self.trials} trials of fib({self.n})")
         pyplot.xlabel("Implementation")
         pyplot.ylabel("Mean running time (seconds)")
+        pyplot.tight_layout(pad=0.4)
         pyplot.show()
-        
-        
 
     def _is_pyi_name(self, program: str) -> bool: # For ease of maintenance if naming convention changes
         """Return True if string is indicative of the naming convention for one of the project's

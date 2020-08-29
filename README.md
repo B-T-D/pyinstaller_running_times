@@ -11,10 +11,10 @@ Comparison of running times for four different implementations of a CPU-intensiv
 * Overhead imposed by using Python subprocess module to run a C process from a parent Python script is a constant factor that becomes insignificant with computationally large inputs.
 
 ## Running time by implementation
-![n30t100](/results_data/means_n30_trials500.png)
+![n30t100](/results_data/means_n30_trials_500.png)
 
 ## Python overhead for C subprocess
-![Python overhead](/results_data/python_overhead_for_c_process.png)
+![Python overhead](/results_data/python_overhead_for_c_subprocess.png)
 
 ## Building executables
   The experiment-runner expects specific file names for the executables, and won't work if they don't match. 

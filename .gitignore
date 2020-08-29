@@ -187,5 +187,5 @@ dkms.conf
 ### Misc. ad hoc additions ###
 
 # ad hoc
-notes.txt
 *.json
+todo.txt

@@ -6,8 +6,8 @@ import platform
 
 def main():
     test_commands_win = [
-        r"python -m test_fib_trial",
-        r"python -m test_fib"
+        r"python -m test.test_fib_trial",
+        r"python -m test.test_fib"
         ]
 
     results = {}

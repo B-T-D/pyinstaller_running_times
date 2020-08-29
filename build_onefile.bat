@@ -1,0 +1,1 @@
+pyinstaller time_py_fib.py --onefile --name time_pyi_fib_win_onefile

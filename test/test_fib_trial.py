@@ -1,6 +1,14 @@
+import sys, os
+
+testdir = os.path.dirname(__file__)
+srcdir = '..'
+sys.path.insert(0, os.path.abspath(srcdir))
+
 import unittest
 
 import fib_trial as ft
+
+#from . import fib_trial as ft
 
 class FibTrialBasicCoverage(unittest.TestCase):
     """Expedient simple-case tests to increase baseline coverage."""

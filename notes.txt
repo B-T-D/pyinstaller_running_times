@@ -1,0 +1,8 @@
+- Pyinstaller vs. Python appears to make no running time difference. There's not a consistent winner among the three, even at 100 trials of n=30. 
+
+- Confirmed Python overhead is a constant amount of time when a py file uses subprocess module to run a compiled C program.
+
+- C library CLOCKS_PER_SEC observed to be set to 1,000,000 on Linux, 1,000 on Windows as of 2020-08-27.
+	- Apparently 1000000 is expected on a 32 bit system. https://www.tutorialspoint.com/c_standard_library/c_function_clock.htm
+
+- Future work: Total process time for pyinstaller vs Python. The overhead as opposed to the primary computation time, which is what this experiment measured.

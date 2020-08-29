@@ -39,10 +39,10 @@ def plot_overhead(data: dict):
     overheads = [data[n][2] for n in xvals]
     pyplot.plot(xvals,
                 c_times,
-                label="C execution: O($n^2$)")
+                label="C execution: O($2^n$)")
     pyplot.plot(xvals,
                 totals,
-                label="Total subprocess: O($n^2$)")
+                label="Total subprocess: O($2^n$)")
     pyplot.plot(xvals,
                 overheads,
                 label="Python subprocess overhead: O(1)")

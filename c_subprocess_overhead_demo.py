@@ -7,13 +7,17 @@ import subprocess
 import time
 import argparse
 import matplotlib.pyplot as pyplot
+import platform
 
 def time_c_fib(n):
     """Run C implementation fib(n) in subprocess and return its output. The
     C program's output is the running time."""
     # TODO take the name of the compiled C executable as an optional arg?
 
-    command = "time_c_fib" # Base command that would be entered at command line
+    if platform.system() != "Windows":
+        raise OSError("Only supported on Windows for now")
+
+    command = "time_c_fib_win" # Base command that would be entered at command line
                             # to run the C executable
     start = time.time()
     completed_subproc = subprocess.run(f"{command} {n}", capture_output=True)
@@ -35,16 +39,16 @@ def plot_overhead(data: dict):
     overheads = [data[n][2] for n in xvals]
     pyplot.plot(xvals,
                 c_times,
-                label="C execution")
+                label="C execution: O($n^2$)")
     pyplot.plot(xvals,
                 totals,
-                label="Total subprocess")
+                label="Total subprocess: O($n^2$)")
     pyplot.plot(xvals,
                 overheads,
-                label="Python subprocess overhead")
+                label="Python subprocess overhead: O(1)")
     pyplot.title("Python overhead for computing fib(n) with compiled C subprocess")
     pyplot.xlabel("n")
-    pyplot.ylabel("Running time")
+    pyplot.ylabel("Running time (seconds)")
     pyplot.legend()
     #pyplot.savefig("Python overhead for C subprocess", format="png")
     pyplot.show()
@@ -64,10 +68,11 @@ starting from fib(0) = 0")
 
     py_overhead_data = {}
 
-    trials = [i for i in range(10, 41, 5)]
-    for n in trials:
-        output = time_c_fib(n)
-        py_overhead_data[n] = output
+    #trials = [i for i in range(10, 41, 5)]
+    #for n in trials:
+    for trial in range(n+1):
+        output = time_c_fib(trial)
+        py_overhead_data[trial] = output
 
     ## Output file init ##
 

@@ -12,25 +12,19 @@ import platform
 def time_c_fib(n):
     """Run C implementation fib(n) in subprocess and return its output. The
     C program's output is the running time."""
-    # TODO take the name of the compiled C executable as an optional arg?
 
     if platform.system() != "Windows":
         raise OSError("Only supported on Windows for now")
 
-    command = "time_c_fib_win" # Base command that would be entered at command line
-                            # to run the C executable
+    command = "time_c_fib_win" 
     start = time.time()
     completed_subproc = subprocess.run(f"{command} {n}", capture_output=True)
     end = time.time()
     result = float(completed_subproc.stdout)
     py_subprocess_time = end - start
     py_overhead = py_subprocess_time - result
-    # Difference drops to trivial around n >= 45, observed on Windows 2020-08-28
     return (result, py_subprocess_time, py_overhead)
-    
-    
-    # DB for curiosity, timing in python and compare with native C timing
-    
+        
 def plot_overhead(data: dict):
     """Use pyplot to plot the results linearly with n on x axis, time on y axis."""
     xvals = list(data.keys())
@@ -51,14 +45,13 @@ def plot_overhead(data: dict):
     pyplot.ylabel("Running time (seconds)")
     pyplot.legend()
     #pyplot.savefig("Python overhead for C subprocess", format="png")
-    pyplot.show()
-    
+    pyplot.show()  
 
 def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("n", type=int,
-                        nargs="?", # to make n optional
+                        nargs="?",
                         help="Which Fibonacci number to return,\
 starting from fib(0) = 0")
     args = parser.parse_args()
@@ -78,7 +71,6 @@ starting from fib(0) = 0")
 
     report_fobj = open("Python overhead for C subprocess.txt", mode='w')
     
-
     ## Output formatting ##
     label_n = 'n'
     colwidth_n = 4

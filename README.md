@@ -1,5 +1,9 @@
-# pyinstaller_running_times
-Running times experiment for Pyinstaller executables
+# Pyinstaller running times experiment
+Comparison of running times for four different implementations of a CPU-intensive exponential-time algorithm for computing the nth number in the Fibonacci sequence:
+1. Compiled C program
+2. Python program running in CPython interpreter
+3. Python program bundled into a Pyinstaller executable using single-folder approach
+4. Python program bundled into Pyinstaller executable using single-executable approach
 
 # Running the experiment
 

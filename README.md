@@ -13,8 +13,12 @@ Comparison of running times for four different implementations of a CPU-intensiv
 ## Running time by implementation
 ![n30t100](/results_data/means_n30_trials1000.png)
 
+  See [fib_trial.py](fib_trial.py)
+
 ## Python overhead for C subprocess
 ![Python overhead](/results_data/python_overhead_for_c_subprocess.png)
+
+  See [c_subprocess_overhead_demo.py](c_subprocess_overhead_demo.py)
 
 # How to run the experiment
 

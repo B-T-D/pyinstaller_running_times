@@ -16,6 +16,8 @@ Comparison of running times for four different implementations of a CPU-intensiv
 ## Python overhead for C subprocess
 ![Python overhead](/results_data/python_overhead_for_c_subprocess.png)
 
+# How to run the experiment
+
 ## Building executables
   The experiment-runner expects specific file names for the executables, and won't work if they don't match. 
 ### Compiling C program

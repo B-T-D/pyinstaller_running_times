@@ -5,36 +5,94 @@ import matplotlib.pyplot as pyplot
 import platform
 import sys
 
+def get_os(): # Outside class for expediency, so __init__ can call it the one and only time
+    """Wrapper utility to return the machine's operating system."""
+    # Using platform.system() for readability (returns "Windows" instead of
+    #   os.name which evaluates to "nt". Not sure what other considerations.
+    if platform.system() == "Windows":
+        return "Windows"
+    elif platform.system() == "Linux":
+        return "Linux"
+    else:
+        raise OSError("Couldn't identify operating system.")
+
 class FibTrial:
     """Object that runs a running-times experiment for various implementations of O(2^n) time
     recursive Fibonacci number function."""
 
     def __init__(self, n):
         self.n = n
-        self.os = self.get_os()
+        self.os = get_os()
+        self.c_name_win = "time_c_fib_win.exe"
+        self.py_name = "time_py_fib.py"
+        self.onedir_name_win = "time_pyi_fib_win_onedir.exe"
+        self.onefile_name_win = "time_pyi_fib_win_onefile.exe"
 
-    def get_os(self): # Wrapper so implementation can be swapped out
-        """Wrapper utility to return the machine's operating system."""
-        # Using platform.system() for readability (returns "Windows" instead of
-        #   os.name which evaluates to "nt". Not sure what other considerations.
-        if platform.system() == "Windows":
-            return "Windows"
-        elif platform.system() == "Linux":
-            return "Linux"
-        else:
-            raise OSError("Couldn't identify operating system.")
+    def run(self):
+        """Run the trial and output to stdout and files as appropriate."""
+        # TODO validate useability of the trial executables
+        
+        results = {}
+        trial_functions = {
+            "C": self.time_c,
+            "Python": self.time_py,
+            "Pyinstaller onedirectory": self.time_pyi_onedir,
+            "Pyinstaller onefile": self.time_pyi_onefile
+            }
+
+        for label, function in trial_functions.items():
+            try:
+                results[label] = function() # The functions get n from the class attribute
+            except FileNotFoundError:
+                print(f"Skipped {label} due to FileNotFoundError")
+
+        for key in results.keys():
+            print(f"{key}: {results[key]}")
+        
+
+    def _is_pyi_name(self, program: str) -> bool: # For ease of maintenance if naming convention changes
+        """Return True if string is indicative of the naming convention for one of the project's
+        pyinstaller executables, else False."""
+        
+        return "pyi" in program
+
+    def _is_onedir_name(self, program: str) -> bool:
+        """Return True if program follows project's naming convention for pyinstaller --onedir
+        build executables, else False."""
+
+        return "onedir" in program
+
+    def _is_onefile_name(self, program: str) -> bool:
+        """Return True if program follows project's naming convention for pyinstaller --onefile
+        build executables, else False."""
+
+        return "onefile" in program
 
     def os_command(self, program: str):
         """Return the OS-appropriate command to run executable."""
         # Check if it's a .py file or a compiled
         if program[-4:] == ".exe":
-            program = program.strip(".exe")
-            if self.os == "Windows":
-                return f"{program} {self.n}"
-            else:
-                raise NotImplementedError
+            program = program[:-4] # using "strip('.exe' will think 'e' in 'onefile' is the
+                                    # beginning of a new '.exe' instance and strip it.
+            # check if it's a pyinstaller exe that would be in a different directory       
+            if self._is_pyi_name(program): # Then check onedir vs. onefile naming convention
+                if  self._is_onedir_name(program):
+                    if self.os == "Windows":
+                        return rf"dist\{program}\{program} {self.n}"
+                    elif self.os == "Linux":
+                        raise NotImplementedError
+                elif self._is_onefile_name(program):
+                    if self.os == "Windows":
+                        return rf"dist\{program} {self.n}"
+                    elif self.os == "Linux":
+                        raise NotImplementedError
+            else: # Then it should be a C executable      
+                if self.os == "Windows":
+                    return rf"{program} {self.n}"
+                else:
+                    raise NotImplementedError
         elif program[-3:] == ".py": # Just let it loudly fail if e.g. pyw
-            program = program.strip(".py")
+            program = program[:-3]
             if self.os == "Windows":
                 return f"python -m {program} {self.n}"
             else:
@@ -42,65 +100,28 @@ class FibTrial:
         else:
             raise ValueError("Unrecognized fib-runner program file extension")
 
+        print(f"******  program = {program}  ******")
+        raise Exception ("shouldn't have gotten here without returning") # TODO DB
+
     def time_c(self): # doesn't need n as an arg because can access the attribute
-        program = "time_c_fib.exe"
-        if self.os == "Windows":
-            command = "time_c_fib"
-        elif self.os == "Linux":
-            command = "./time_c_fib"
+        command = self.os_command(self.c_name_win)
+        completed_subproc = subprocess.run(f"{command}", capture_output=True)
+        return float(completed_subproc.stdout)
 
-def time_c(n):
-    """Run C implementation fib(n) in subprocess and return its output. The
-    C program's output is the running time."""
-    # TODO take the name of the compiled C executable as an optional arg?
+    def time_py(self):
+        command = self.os_command(self.py_name)
+        completed_subproc = subprocess.run(f"{command}", capture_output=True)
+        return float(completed_subproc.stdout)
 
-    system = get_os() # Commandline syntax will depend on the OS
-    if system == "Windows": 
-        command = "time_c_fib"
-    elif system == "Linux":
-        command = "./time_c_fib"
-    completed_subproc = subprocess.run(f"{command} {n}", capture_output=True)
-    return float(completed_subproc.stdout)
-        
-def time_py(n):
-    """Run pure Python implementation fib(n) in subprocess and return its output.
-    The Python fib(n) module measures its running time internally and outputs it."""
+    def time_pyi_onedir(self):
+        command = self.os_command(self.onedir_name_win)
+        completed_subproc = subprocess.run(f"{command}", capture_output=True)
+        return float(completed_subproc.stdout)
 
-    # TODO class attribute OS
-
-    system = get_os() # Commandline syntax will depend on the OS
-    if system == "Windows": 
-        command = "python -m time_py_fib"
-    elif system == "Linux":
-        command = "python3 -m time_py_fib"
-    completed_subproc = subprocess.run(f"{command} {n}", capture_output=True)
-    return float(completed_subproc.stdout)
-
-def time_pyi_onedir(n):
-    """Run Pyinstaller one-directory build fib(n) implementation in subprocess and
-    return its output (which is the running time)."""
-
-    # TODO DRY
-    
-    system = get_os() # Commandline syntax will depend on the OS
-    if system == "Windows": 
-        command = r"dist\time_pyi_fib_win_od\time_pyi_fib_win_od"
-    elif system == "Linux":
-        command = "dist/time_pyi_fib_win_od/./time_pyi_fib_win_od" # TODO confirm this is right
-    completed_subproc = subprocess.run(f"{command} {n}", capture_output=True)
-    return float(completed_subproc.stdout)
-
-def time_pyi_onefile(n):
-    """Run Pyinstaller one-file build fib(n) implementation in subprocess and return its output
-    (which is the running time)."""
-    system = get_os() # Commandline syntax will depend on the OS
-    if system == "Windows": 
-        command = r"dist\time_pyi_fib_win_onefile"
-    elif system == "Linux":
-        command = "dist/./time_pyi_fib_win_onefile" # TODO confirm this is right
-    completed_subproc = subprocess.run(f"{command} {n}", capture_output=True)
-    return float(completed_subproc.stdout)
-    
+    def time_pyi_onefile(self):
+        command = self.os_command(self.onedir_name_win)
+        completed_subproc = subprocess.run(f"{command}", capture_output=True)
+        return float(completed_subproc.stdout)
         
 def main():
 
@@ -114,22 +135,10 @@ starting from fib(0) = 0")
     if not n:
         print("No n argument")
 
-    results = {}
-    trial_functions = {
-        "C": time_c,
-        "Python": time_py,
-        "Pyinstaller onedirectory": time_pyi_onedir,
-        "Pyinstaller onefile": time_pyi_onefile
-        }
+    trial = FibTrial(n)
+    trial.run()
 
-    for label, function in trial_functions.items():
-        try:
-            results[label] = function(n)
-        except FileNotFoundError:
-            print(f"Skipped {label} due to FileNotFoundError")
-
-    for key in results.keys():
-        print(f"{key}: {results[key]}")
+    
     
 if __name__ == '__main__':
     main()

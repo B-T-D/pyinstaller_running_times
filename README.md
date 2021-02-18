@@ -6,7 +6,11 @@ Comparison of running times for four different implementations of a CPU-intensiv
 4. Python program bundled into Pyinstaller executable using single-executable approach
 
 # Background
-I became casually familiar with pyinstaller when I used it to bundle some Python scripts here and there. In [the pyinstaller documentation](https://pyinstaller.readthedocs.io/en/stable/), I read about the difference between one-folder bundling and one-file bundling, and became curious whether there would be an observable difference in running times between a program bundled into a single folder versus one bundled into a single file. So I decided to try running a deliberately slow program in different pyinstaller configurations, and directly measure it's running time.
+I became casually familiar with pyinstaller when I used it to bundle some Python scripts here and there. In [the pyinstaller documentation](https://pyinstaller.readthedocs.io/en/stable/), I read about the difference between one-folder bundling and one-file bundling, and became curious whether running times would be different based on the bundling method. So I decided to try running an identical, deliberately slow program in different pyinstaller configurations, and measure its running time.
+
+For the slow program, I used a recursive algorithm that computes Fibonacci numbers in exponential time complexity. As a control and sanity check against the bundled pyinstaller programs, I also timed the same algorithm implemented in a compiled C program.
+
+Along the way, I noticed I could also measure the computational overhead involved in using a Python subprocess to run a C program. So out of curiosity, I timed that too.
 
 # Results
 * Observed no significant or even consistent running time difference between the three Python-based implementations of the algorithm
